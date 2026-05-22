@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMA Negeri 1 Nusantara — Membangun Generasi Unggul</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { display: ['Playfair Display','serif'], body: ['Poppins','sans-serif'] },
+      colors: {
+        navy: { 50:'#f0f3f9', 100:'#d9e1f0', 200:'#b3c3e1', 300:'#8da5d2', 400:'#6787c3', 500:'#4169b4', 600:'#345490', 700:'#273f6c', 800:'#1a2a48', 900:'#0d1524' },
+        gold: { 50:'#fefbf0', 100:'#fdf3d1', 200:'#fbe7a3', 300:'#f9db75', 400:'#f7cf47', 500:'#d4a017', 600:'#b8860b', 700:'#8c6508', 800:'#604406', 900:'#342303' },
+        school: { blue:'#1e3a5f', light:'#2563eb', accent:'#3b82f6' }
+      }
+    }
+  }
+}
+</script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-body transition-colors duration-300">
+
+<div id="loader"><div class="spinner"></div><p class="text-white/70 mt-5 text-sm tracking-widest uppercase">Memuat</p></div>
+<div id="toast"></div>
+
+<!-- NAVBAR -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 lg:h-20">
+    <a href="#" onclick="navigate('home');return false" class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-school-blue to-blue-600 flex items-center justify-center shadow-lg"><span class="text-white font-bold text-sm">S1N</span></div><div class="hidden sm:block"><div class="font-display font-bold text-navy-800 dark:text-white text-sm">SMAN 1 Nusantara</div><div class="text-[10px] text-slate-500">Unggul • Berkarakter</div></div></a>
+    <div class="hidden lg:flex items-center gap-1">
+      <button onclick="navigate('home')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-school-light">Beranda</button>
+      <button onclick="navigate('profile')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-school-light">Profil</button>
+      <button onclick="navigate('academic')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-school-light">Akademik</button>
+      <button onclick="navigate('ppdb')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-school-light">PPDB</button>
+      <button onclick="navigate('news')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-school-light">Berita</button>
+      <button onclick="navigate('gallery')" class="nav-link px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-school-light">Galeri</button>
+      <button onclick="toggleDark()" class="p-2 ml-2 rounded-lg hover:bg-blue-50 dark:hover:bg-slate-800"><i data-lucide="moon" class="w-5 h-5"></i></button>
+      <button id="navLoginBtn" onclick="navigate('login')" class="ml-3 px-5 py-2 bg-gradient-to-r from-school-blue to-blue-600 text-white rounded-xl text-sm font-semibold hover:shadow-lg transition-all">Login</button>
+      <div id="navUserMenu" class="hidden ml-3 items-center gap-3 cursor-pointer" onclick="navigate(currentUser.role==='Admin'?'admin':'dashboard')">
+        <div class="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-700 overflow-hidden"><img id="navAvatar" src="" class="w-full h-full object-cover"></div>
+        <span id="navUsername" class="text-sm font-semibold hidden xl:block"></span>
+        <button onclick="event.stopPropagation();logout()" class="p-1 text-red-500"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 lg:hidden"><button onclick="toggleDark()" class="p-2"><i data-lucide="moon" class="w-5 h-5"></i></button><button onclick="toggleMobileMenu()" class="p-2"><i data-lucide="menu" class="w-6 h-6"></i></button></div>
+  </div>
+</nav>
+<div id="mobileMenu" class="mobile-menu fixed inset-y-0 right-0 w-80 max-w-full bg-white dark:bg-slate-900 z-50 shadow-2xl p-6"><div class="flex justify-between items-center mb-8"><span class="font-display font-bold text-lg">Menu</span><button onclick="toggleMobileMenu()" class="p-2"><i data-lucide="x" class="w-6 h-6"></i></button></div><div class="space-y-2"><button onclick="navigate('home');toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 dark:hover:bg-slate-800 font-medium">Beranda</button><button onclick="navigate('ppdb');toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 dark:hover:bg-slate-800 font-medium">PPDB</button><button onclick="navigate('login');toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 dark:hover:bg-slate-800 font-medium">Login</button></div></div>
+<div id="mobileOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleMobileMenu()"></div>
+
+<main>
+<!-- ===== HOME ===== -->
+<div id="page-home" class="page active">
+  <section class="relative min-h-screen flex items-center overflow-hidden"><div class="absolute inset-0 bg-gradient-to-br from-navy-900 via-school-blue to-blue-700"></div><div class="absolute inset-0 opacity-20" style="background-image:url('https://picsum.photos/seed/school-campus/1920/1080.jpg');background-size:cover;mix-blend-mode:overlay"></div><div class="relative z-10 max-w-7xl mx-auto px-4 py-32 lg:py-0 w-full"><div class="grid lg:grid-cols-2 gap-12 items-center"><div><div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-blue-200 text-sm mb-6"><i data-lucide="award" class="w-4 h-4 text-gold-400"></i><span>Akreditasi <span id="homeAkreditasi">A</span></span></div><h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6">Membangun Generasi <span class="gold-gradient-text">Unggul</span>, Berkarakter</h1><p class="text-blue-100/80 text-lg mb-8 max-w-lg" id="homeVisi">Terwujudnya sekolah unggul berdaya saing global</p><div class="flex flex-wrap gap-4"><button onclick="navigate('ppdb')" class="px-8 py-4 bg-gradient-to-r from-gold-500 to-gold-400 text-navy-900 rounded-2xl font-bold hover:shadow-lg transition-all hover:-translate-y-1 flex items-center gap-2"><i data-lucide="edit-3" class="w-5 h-5"></i> Daftar PPDB</button><button onclick="navigate('profile')" class="px-8 py-4 glass text-white rounded-2xl font-semibold hover:bg-white/20 transition-all hover:-translate-y-1">Profil Sekolah</button></div></div><div class="hidden lg:block"><div class="relative"><div class="absolute -inset-4 bg-gradient-to-r from-blue-400/20 to-gold-400/20 rounded-3xl blur-2xl"></div><img src="https://picsum.photos/seed/happy-students/600/500.jpg" class="relative rounded-3xl shadow-2xl w-full object-cover aspect-[6/5]"></div></div></div></div></section>
+  <section class="relative -mt-16 z-20 max-w-6xl mx-auto px-4"><div class="grid grid-cols-2 lg:grid-cols-4 gap-4"><div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl text-center hover:-translate-y-1 transition-all border border-slate-100 dark:border-slate-700"><div class="w-14 h-14 bg-blue-50 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-3"><i data-lucide="users" class="w-7 h-7 text-school-light"></i></div><div class="text-3xl font-bold counter" data-targetdb="siswa">0</div><div class="text-sm text-slate-500 mt-1">Siswa Aktif</div></div><div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl text-center hover:-translate-y-1 transition-all border border-slate-100 dark:border-slate-700"><div class="w-14 h-14 bg-gold-50 dark:bg-gold-900/30 rounded-2xl flex items-center justify-center mx-auto mb-3"><i data-lucide="graduation-cap" class="w-7 h-7 text-gold-600"></i></div><div class="text-3xl font-bold counter" data-targetdb="guru">0</div><div class="text-sm text-slate-500 mt-1">Guru & Staff</div></div><div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl text-center hover:-translate-y-1 transition-all border border-slate-100 dark:border-slate-700"><div class="w-14 h-14 bg-green-50 dark:bg-green-900/30 rounded-2xl flex items-center justify-center mx-auto mb-3"><i data-lucide="award" class="w-7 h-7 text-green-600"></i></div><div class="text-3xl font-bold">150+</div><div class="text-sm text-slate-500 mt-1">Prestasi</div></div><div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-xl text-center hover:-translate-y-1 transition-all border border-slate-100 dark:border-slate-700"><div class="w-14 h-14 bg-purple-50 dark:bg-purple-900/30 rounded-2xl flex items-center justify-center mx-auto mb-3"><i data-lucide="heart" class="w-7 h-7 text-purple-600"></i></div><div class="text-3xl font-bold">5200+</div><div class="text-sm text-slate-500 mt-1">Alumni</div></div></div></section>
+  <footer class="bg-navy-900 text-white pt-16 pb-8 mt-20"><div class="max-w-7xl mx-auto px-4"><div class="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12"><div><div class="flex items-center gap-3 mb-4"><div class="w-10 h-10 rounded-xl bg-gradient-to-br from-school-light to-blue-600 flex items-center justify-center"><span class="text-white font-bold text-sm">S1N</span></div><div class="font-display font-bold" id="footNama">SMAN 1 Nusantara</div></div><p class="text-slate-400 text-sm" id="footAlamat">Jl. Pendidikan No. 1</p></div><div><h4 class="font-semibold mb-4">Kontak</h4><ul class="space-y-2 text-sm text-slate-400"><li id="footTelp">(021) 1234-5678</li><li id="footEmail">info@sman1nusantara.sch.id</li></ul></div></div><div class="border-t border-white/10 pt-8 text-center text-sm text-slate-500">© 2025 SMA Negeri 1 Nusantara</div></div></footer>
+</div>
+
+<!-- ===== PROFILE ===== -->
+<div id="page-profile" class="page"><section class="pt-28 pb-16 bg-gradient-to-br from-navy-900 via-school-blue to-blue-700 text-white"><div class="max-w-7xl mx-auto px-4 text-center"><h1 class="font-display text-4xl lg:text-6xl font-bold mb-4">Profil Sekolah</h1></div></section><section class="py-16 max-w-4xl mx-auto px-4"><div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-xl border dark:border-slate-700"><h2 class="font-display text-2xl font-bold mb-4">Data Sekolah</h2><div id="profileContent" class="space-y-3 text-sm"></div></div></section></div>
+
+<!-- ===== ACADEMIC ===== -->
+<div id="page-academic" class="page"><section class="pt-28 pb-16 bg-gradient-to-br from-navy-900 via-school-blue to-blue-700 text-white"><div class="max-w-7xl mx-auto px-4 text-center"><h1 class="font-display text-4xl lg:text-6xl font-bold mb-4">Akademik</h1></div></section><section class="py-16 max-w-7xl mx-auto px-4"><div class="grid md:grid-cols-3 gap-6"><div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border dark:border-slate-700 shadow-xl"><span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-school-light text-xs font-semibold rounded-full">MIPA</span><h3 class="font-display text-xl font-bold mt-3 mb-2">Matematika & IPA</h3><p class="text-sm text-slate-500">Fokus pada kemampuan analitis dan saintifik.</p></div><div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border dark:border-slate-700 shadow-xl"><span class="px-3 py-1 bg-gold-100 dark:bg-gold-900/40 text-gold-600 text-xs font-semibold rounded-full">IPS</span><h3 class="font-display text-xl font-bold mt-3 mb-2">Ilmu Pengetahuan Sosial</h3><p class="text-sm text-slate-500">Kesadaran sosial, ekonomi, dan kewarganegaraan.</p></div><div class="bg-white dark:bg-slate-800 rounded-2xl p-8 border dark:border-slate-700 shadow-xl"><span class="px-3 py-1 bg-purple-100 dark:bg-purple-900/40 text-purple-600 text-xs font-semibold rounded-full">Bahasa</span><h3 class="font-display text-xl font-bold mt-3 mb-2">Bahasa</h3><p class="text-sm text-slate-500">Penguasaan multibahasa untuk komunikasi global.</p></div></div></section></div>
+
+<!-- ===== NEWS ===== -->
+<div id="page-news" class="page"><section class="pt-28 pb-16 bg-gradient-to-br from-navy-900 via-school-blue to-blue-700 text-white"><div class="max-w-7xl mx-auto px-4 text-center"><h1 class="font-display text-4xl lg:text-6xl font-bold mb-4">Berita</h1></div></section><section class="py-16 max-w-5xl mx-auto px-4"><div class="grid md:grid-cols-2 gap-6"><article class="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border dark:border-slate-700 shadow-xl"><div class="aspect-video overflow-hidden"><img src="https://picsum.photos/seed/news-1/800/450.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"></div><div class="p-6"><span class="text-xs text-school-light font-medium">Prestasi</span><h3 class="font-bold text-lg mt-1">Siswa Raih Medali Emas Olimpiade Sains</h3><p class="text-sm text-slate-500 mt-2">Muhammad Faisal berhasil meraih medali emas di OSN Fisika tingkat nasional.</p></div></article><article class="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border dark:border-slate-700 shadow-xl"><div class="aspect-video overflow-hidden"><img src="https://picsum.photos/seed/news-2/800/450.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"></div><div class="p-6"><span class="text-xs text-gold-600 font-medium">PPDB</span><h3 class="font-bold text-lg mt-1">PPDB 2025/2026 Resmi Dibuka</h3><p class="text-sm text-slate-500 mt-2">Pendaftaran peserta didik baru untuk tahun ajaran 2025/2026 dibuka.</p></div></article></div></section></div>
+
+<!-- ===== GALLERY ===== -->
+<div id="page-gallery" class="page"><section class="pt-28 pb-16 bg-gradient-to-br from-navy-900 via-school-blue to-blue-700 text-white"><div class="max-w-7xl mx-auto px-4 text-center"><h1 class="font-display text-4xl lg:text-6xl font-bold mb-4">Galeri</h1></div></section><section class="py-12 max-w-7xl mx-auto px-4"><div class="masonry"><div class="rounded-2xl overflow-hidden group"><img src="https://picsum.photos/seed/g1/600/400.jpg" class="w-full object-cover group-hover:scale-105 transition-transform duration-500"></div><div class="rounded-2xl overflow-hidden group"><img src="https://picsum.photos/seed/g2/600/800.jpg" class="w-full object-cover group-hover:scale-105 transition-transform duration-500"></div><div class="rounded-2xl overflow-hidden group"><img src="https://picsum.photos/seed/g3/600/450.jpg" class="w-full object-cover group-hover:scale-105 transition-transform duration-500"></div><div class="rounded-2xl overflow-hidden group"><img src="https://picsum.photos/seed/g4/600/600.jpg" class="w-full object-cover group-hover:scale-105 transition-transform duration-500"></div></div></section></div>
+
+<!-- ===== PPDB ===== -->
+<div id="page-ppdb" class="page">
+  <section class="pt-28 pb-16 bg-gradient-to-br from-navy-900 via-school-blue to-blue-700 text-white"><div class="max-w-7xl mx-auto px-4 text-center"><h1 class="font-display text-4xl lg:text-6xl font-bold mb-4">PPDB 2025/2026</h1></div></section>
+  <section class="py-12 max-w-4xl mx-auto px-4">
+    <div class="relative flex justify-between mb-12"><div class="step-line"><div class="step-fill" id="stepFill"></div></div><div class="relative z-10 flex flex-col items-center" id="step1dot"><div class="w-10 h-10 rounded-full bg-school-light text-white flex items-center justify-center font-bold text-sm shadow-lg">1</div><span class="text-xs mt-2 font-medium text-school-light">Data</span></div><div class="relative z-10 flex flex-col items-center" id="step2dot"><div class="w-10 h-10 rounded-full bg-slate-300 text-slate-500 flex items-center justify-center font-bold text-sm">2</div><span class="text-xs mt-2 text-slate-400">Konfirmasi</span></div></div>
+    <div id="ppdbStep1" class="bg-white dark:bg-slate-800 rounded-3xl p-8 border dark:border-slate-700 shadow-xl">
+      <h3 class="font-display text-2xl font-bold mb-6">Formulir Pendaftaran</h3>
+      <div class="space-y-4">
+        <div><label class="block text-sm font-medium mb-2">Nama Lengkap *</label><input type="text" id="ppdbNama" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nama Lengkap"></div>
+        <div><label class="block text-sm font-medium mb-2">Asal Sekolah *</label><input type="text" id="ppdbAsal" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="SMP Asal"></div>
+        <div><label class="block text-sm font-medium mb-2">Jalur Masuk *</label><select id="ppdbJalur" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 outline-none"><option>Zonasi</option><option>Prestasi</option><option>Afirmasi</option></select></div>
+      </div>
+      <button onclick="submitPPDB()" class="mt-6 px-8 py-3 bg-gradient-to-r from-school-blue to-blue-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">Daftar Sekarang →</button>
+    </div>
+    <div id="ppdbStep2" class="hidden bg-white dark:bg-slate-800 rounded-3xl p-8 border dark:border-slate-700 shadow-xl text-center">
+      <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6"><i data-lucide="check-circle" class="w-10 h-10 text-green-600"></i></div>
+      <h3 class="font-display text-2xl font-bold mb-2">Pendaftaran Berhasil!</h3>
+      <p class="text-slate-500 mb-6">Nomor Pendaftaran Anda: <span class="font-bold text-school-light text-lg" id="ppdbKode"></span></p>
+      <button onclick="goStep(1)" class="px-6 py-3 border dark:border-slate-600 rounded-xl font-semibold">Daftar Lagi</button>
+    </div>
+  </section>
+</div>
+
+<!-- ===== LOGIN ===== -->
+<div id="page-login" class="page">
+  <section class="min-h-screen flex items-center justify-center bg-gradient-to-br from-navy-900 via-school-blue to-blue-700 py-12 px-4">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8"><div class="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4"><span class="text-white font-bold text-xl">S1N</span></div><h1 class="font-display text-3xl font-bold text-white mb-2">Login Portal</h1><p class="text-blue-100/70 text-sm">Gunakan: admin/admin123, aisyah/siswa123</p></div>
+      <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-2xl">
+        <div class="space-y-5">
+          <div><label class="block text-sm font-medium mb-2">Username</label><input type="text" id="loginUser" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Username"></div>
+          <div><label class="block text-sm font-medium mb-2">Password</label><input type="password" id="loginPass" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Password"></div>
+          <div id="loginError" class="text-red-500 text-sm hidden">Username atau password salah!</div>
+          <button onclick="performLogin()" class="w-full py-3 bg-gradient-to-r from-school-blue to-blue-600 text-white rounded-xl font-bold hover:shadow-lg transition-all">Masuk</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ===== STUDENT/GURU DASHBOARD ===== -->
+<div id="page-dashboard" class="page">
+  <div class="pt-24 min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+      <div class="flex items-center gap-4 mb-8"><img id="dashAvatar" src="https://picsum.photos/seed/avatar/100/100.jpg" class="w-14 h-14 rounded-2xl object-cover"><div><h2 class="text-2xl font-bold" id="dashName">Halo!</h2><p class="text-slate-500 text-sm" id="dashClass">Role</p></div></div>
+      <div class="grid lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl p-6 border dark:border-slate-700"><h3 class="font-semibold mb-4">Profil Pengguna</h3><div id="dashProfile" class="space-y-3 text-sm"></div></div>
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border dark:border-slate-700"><h3 class="font-semibold mb-4">Pengumuman</h3><div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border-l-4 border-blue-500"><p class="text-sm font-medium">UAS Dimulai 10 Feb</p></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div id="page-admin" class="page">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 flex">
+    <aside class="sidebar bg-white dark:bg-slate-900 border-r dark:border-slate-700 p-6 flex flex-col" id="adminSidebar">
+      <div class="font-bold mb-6">Admin Panel</div>
+      <nav class="space-y-1 flex-1"><button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-school-light font-medium text-sm"><i data-lucide="layout-dashboard" class="w-5 h-5"></i>Dashboard</button></nav>
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-50 text-red-500 text-sm"><i data-lucide="log-out" class="w-5 h-5"></i>Keluar</button>
+    </aside>
+    <div class="flex-1 min-w-0">
+      <header class="bg-white dark:bg-slate-900 border-b dark:border-slate-700 px-6 py-4 flex items-center justify-between sticky top-0 z-10"><div class="flex items-center gap-4"><button onclick="document.getElementById('adminSidebar').classList.toggle('open')" class="lg:hidden p-2"><i data-lucide="menu" class="w-5 h-5"></i></button><h1 class="font-bold">Dashboard Admin</h1></div></header>
+      <div class="p-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border dark:border-slate-700"><p class="text-xs text-slate-500">Total Siswa</p><p class="text-2xl font-bold mt-1" id="admTotalSiswa">0</p></div>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border dark:border-slate-700"><p class="text-xs text-slate-500">Total Guru</p><p class="text-2xl font-bold mt-1" id="admTotalGuru">0</p></div>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border dark:border-slate-700"><p class="text-xs text-slate-500">Pendaftar PPDB</p><p class="text-2xl font-bold mt-1" id="admTotalPPDB">0</p></div>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 border dark:border-slate-700"><p class="text-xs text-slate-500">Akreditasi</p><p class="text-2xl font-bold mt-1 text-gold-500" id="admAkreditasi">A</p></div>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-6 mb-8">
+          <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border dark:border-slate-700"><h3 class="font-semibold mb-4">Data Siswa (DB)</h3><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b dark:border-slate-700"><th class="text-left py-2">NIS</th><th class="text-left py-2">Nama</th><th class="text-left py-2">Kelas</th></tr></thead><tbody id="admSiswaTable"></tbody></table></div></div>
+          <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border dark:border-slate-700"><h3 class="font-semibold mb-4">Data PPDB Terbaru (DB)</h3><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b dark:border-slate-700"><th class="text-left py-2">No. Daftar</th><th class="text-left py-2">Nama</th><th class="text-left py-2">Status</th></tr></thead><tbody id="admPPDBTable"></tbody></table></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+
+<a href="https://wa.me/621234567890" target="_blank" class="wa-float"><svg viewBox="0 0 24 24" class="w-7 h-7 text-white" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
+<!-- Load Scripts at the end -->
+<script src="js/database.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
